@@ -1,0 +1,105 @@
+# LiteLLM Proxy Configuration
+# 文档: https://docs.litellm.ai/docs/proxy/configs
+
+# ============================================
+# 模型配置
+# ============================================
+model_list:
+  # Azure OpenAI GPT-5.2 Codex 模型配置
+  - model_name: gpt-5.2-codex
+    litellm_params:
+      model: azure/gpt-5.2-codex
+      api_base: ${AZURE_API_BASE}
+      api_key: ${AZURE_API_KEY}
+      api_version: ${AZURE_API_VERSION}
+    model_info:
+      mode: chat
+      max_tokens: 128000
+      input_cost_per_token: 0.000015
+      output_cost_per_token: 0.00006
+
+  # 可选：添加备用模型
+  - model_name: gpt-5.2-codex-backup
+    litellm_params:
+      model: azure/gpt-5.2-codex-backup
+      api_base: ${AZURE_API_BASE_BACKUP}
+      api_key: ${AZURE_API_KEY_BACKUP}
+      api_version: ${AZURE_API_VERSION}
+    model_info:
+      mode: chat
+
+# ============================================
+# 通用设置
+# ============================================
+general_settings:
+  # 启用主密钥认证
+  master_key: ${LITELLM_MASTER_KEY}
+  
+  # 数据库配置 (用于存储API Keys、用户等)
+  database_url: ${DATABASE_URL}
+  
+  # 启用API Key管理
+  store_model_in_db: true
+  
+  # 代理设置
+  allow_user_auth: true
+  
+  # 启用详细日志
+  debug: false
+  
+  # 请求超时设置
+  request_timeout: 600
+
+# ============================================
+# 路由策略
+# ============================================
+router_settings:
+  # 路由策略: simple-shuffle, least-busy, usage-based-routing, latency-based-routing
+  routing_strategy: latency-based-routing
+  
+  # 重试配置
+  num_retries: 3
+  retry_after: 5
+  
+  # 故障转移配置
+  allowed_fails: 3
+  cooldown_time: 60
+  
+  # 模型组别名 (允许用户使用简化名称)
+  model_group_alias:
+    codex: gpt-5.2-codex
+    gpt5: gpt-5.2-codex
+
+# ============================================
+# 限流配置
+# ============================================
+litellm_settings:
+  # 全局限流
+  max_budget: 100  # 最大预算 $100
+  budget_duration: 30d  # 预算周期 30天
+  
+  # 每分钟请求数限制
+  # rpm_limit: 1000
+  
+  # 每分钟token数限制
+  # tpm_limit: 100000
+  
+  # 启用成本追踪
+  success_callback: ["langfuse"]
+  failure_callback: ["langfuse"]
+  
+  # 缓存配置 (可选)
+  # cache: true
+  # cache_params:
+  #   type: redis
+  #   host: redis
+  #   port: 6379
+  
+  # 日志配置
+  set_verbose: false
+
+# ============================================
+# 环境变量配置
+# ============================================
+environment_variables:
+  AZURE_API_VERSION: "2024-10-01-preview"
